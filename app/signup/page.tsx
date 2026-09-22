@@ -14,20 +14,31 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    const data = await res.json();
+      let data: { error?: string } = {};
 
-    if (!res.ok) {
-      setError(data.error || "Something went wrong.");
-      return;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
+
+      router.push("/login");
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("Something went wrong. Please try again.");
     }
-
-    router.push("/login");
   };
 
   return (
